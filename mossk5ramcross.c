@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int N = 12;
+
+// p(i,j) is whether the edge btwn i and j is inside or outside.
+// note that we only use this when i < j - 1, otherwise it's a useless var
+// but encoding it this way is way easier lol - we just set useless vars to true
+int p(int i, int j) {
+	// plus one is to move it from [0, N) to [1, N]
+	return i * N + j + 1;
+}
+
+// get i given p
+int pi(int p) {
+	return (p - 1) / N;
+}
+
+// get j given p
+int pj(int p) {
+	return (p - 1) % N;
+}
+
+//got this literally from the google AI output, just searched "C write to file skeleton code"
+int main() {
+  FILE *file_pointer;
+  char *filename = "k5ramcross.cnf"; // Specify the name of the file
+
+  // Open the file in write mode ("w"). If the file doesn't exist, it will be created.
+  // If the file exists, it will be overwritten.
+  file_pointer = fopen(filename, "w");
+
+  if (file_pointer == NULL) {
+    printf("Error opening the file.\n");
+    return 1; // Indicate an error
+  }
+
+  // Write data to the file
+	int Nchoose2 = (N * (N-1)) / 2;
+	int Nchoose5 = (N * (N-1) * (N-2) * (N-3) * (N-4)) / 120;
+  fprintf(file_pointer, "p cnf %d %d\n", N*N, (N + (N-1) + Nchoose2 + 2*Nchoose5));
+  
+	// first, we set useless vars to true:
+	// p(i,j), is true arbitrarily when j <= i + 1
+	for(int i = 0; i < N; i++) {
+		for(int j = 0; j <= i + 1; j++) {
+			if(j < N) fprintf(file_pointer, "%d 0\n", p(i,j));
+	}}
+
+	// Now we add the clauses: want to loop through every group of 5
+	for(int a = 0; a < N - 4; a++) {
+		for(int b = a+1; b < N - 3; b++) {
+			for(int c = b+1; c < N - 2; c++) {
+				for(int d = c+1; d < N - 1; d++) {
+					for(int e = d+1; e < N; e++) {
+						// at least one diagonal edge must be inside
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", p(a,c), p(c,e), p(b,d), p(a,d), p(b,e));
+						// at least one diagonal edge must be outside
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", -p(a,c), -p(c,e), -p(b,d), -p(a,d), -p(b,e));
+	}}}}}
+
+  // Close the file
+  fclose(file_pointer);
+
+  printf("Data written to %s successfully.\n", filename);
+
+  return 0; // Indicate successful execution
+}
