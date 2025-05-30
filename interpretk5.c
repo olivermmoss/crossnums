@@ -27,7 +27,7 @@ int main(){
     FILE *fptr;
 
     // Open a file in read mode
-    fptr = fopen("samplesol.txt", "r");
+    fptr = fopen("k5.sol", "r");
 
     // Store the content of the file
     char myString[10000];
