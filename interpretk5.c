@@ -48,7 +48,8 @@ int main(){
                 if (*endptr != '\0') {
                     printf("Error: Invalid characters in string.\n");
                 } else {
-                    if(num > 0 && pi((int)num) < pj((int)num)) {
+										// oliver here: modified this to not care about adjacent edges already in the cycle
+                    if(num > 0 && pi((int)num) < pj((int)num) - 1) {
 
                         printf("(%d,%d)\n", pi((int)num), pj((int)num));
                         count++;}

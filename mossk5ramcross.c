@@ -24,7 +24,7 @@ int pj(int p) {
 //got this literally from the google AI output, just searched "C write to file skeleton code"
 int main() {
   FILE *file_pointer;
-  char *filename = "k5ramcross.cnf"; // Specify the name of the file
+  const char *filename = "k5ramcross.cnf"; // Specify the name of the file
 
   // Open the file in write mode ("w"). If the file doesn't exist, it will be created.
   // If the file exists, it will be overwritten.
@@ -58,6 +58,10 @@ int main() {
 						// at least one diagonal edge must be outside
 						fprintf(file_pointer, "%d %d %d %d %d 0\n", -p(a,c), -p(c,e), -p(b,d), -p(a,d), -p(b,e));
 	}}}}}
+
+	// symmetry breaking:
+	// first, we require that p(0,2) is true, breaking reflection along the circle
+	fprintf(file_pointer, "%d 0", p(0,2));
 
   // Close the file
   fclose(file_pointer);
