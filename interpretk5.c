@@ -4,6 +4,8 @@
 
 int N = 12;
 
+int heatmap[35];
+
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
 // but encoding it this way is way easier lol - we just set useless vars to true
@@ -27,7 +29,7 @@ int main(){
     FILE *fptr;
 
     // Open a file in read mode
-    fptr = fopen("k5.sol", "r");
+    fptr = fopen("samplesol.txt", "r");
 
     // Store the content of the file
     char myString[10000];
@@ -47,9 +49,14 @@ int main(){
 
                 if (*endptr != '\0') {
                     printf("Error: Invalid characters in string.\n");
+                    if(count != 0){
+                        printf("\nEdges inside: %d",count);
+                        heatmap[count] ++;
+                    }
+                   
+                    count = 0;
                 } else {
-										// oliver here: modified this to not care about adjacent edges already in the cycle
-                    if(num > 0 && pi((int)num) < pj((int)num) - 1) {
+                    if(num > 0 && pi((int)num) < pj((int)num)-1) {
 
                         printf("(%d,%d)\n", pi((int)num), pj((int)num));
                         count++;}
@@ -60,7 +67,7 @@ int main(){
             
         }
 
-        printf("\nEdges inside: %d",count);
+    
 
     // If the file does not exist
     } else {
@@ -69,5 +76,9 @@ int main(){
 
     // Close the file
     fclose(fptr);
+
+    for (int i = 20; i < 35; i++){
+        printf("%d: %d graphs\n", i, heatmap[i]);
+    }
 
 }
