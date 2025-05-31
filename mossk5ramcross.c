@@ -38,7 +38,7 @@ int main() {
   // Write data to the file
 	int Nchoose2 = (N * (N-1)) / 2;
 	int Nchoose5 = (N * (N-1) * (N-2) * (N-3) * (N-4)) / 120;
-  fprintf(file_pointer, "p cnf %d %d\n", N*N, (N + (N-1) + Nchoose2 + 2*Nchoose5));
+  fprintf(file_pointer, "p cnf %d %d\n", N*N, (N + (N-1) + Nchoose2 + 2*Nchoose5 + 2));
   
 	// first, we set useless vars to true:
 	// p(i,j), is true arbitrarily when j <= i + 1
@@ -61,7 +61,8 @@ int main() {
 
 	// symmetry breaking:
 	// first, we require that p(0,2) is true, breaking reflection along the circle
-	fprintf(file_pointer, "%d 0", p(0,2));
+	fprintf(file_pointer, "%d 0\n", p(0,2));
+	fprintf(file_pointer, "%d 0\n", p(0,N-1));
 
   // Close the file
   fclose(file_pointer);
