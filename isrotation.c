@@ -96,8 +96,8 @@ int main(){
         if(a == b) continue;
 				// bigMatch stores if THERE EXISTS an x with the properties we want
 				bool bigMatch = false;
-				bool posmatchbys[12];
-				bool negmatchbys[12];
+				bool posmatchbys[12] = {false};
+				bool negmatchbys[12] = {false};
 				for(int x = 0; x < N; x++) {
 					// match is "is it a rotation (check ALL i,j)"
 					bool match = true;
