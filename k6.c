@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-int N = 40;
+int N = 26;
 
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
@@ -44,14 +44,22 @@ int main() {
 //   printf("NC2: %ld\n", Nchoose2);
 //   printf("NC6: %ld\n", Nchoose6);
 //   printf("fin: %lu\n", ((uint64_t)N + (uint64_t)(N-1) + Nchoose2 + 2*Nchoose6 + 2));
-  fprintf(file_pointer, "p cnf %d %lu\n", N*N, ((uint64_t)N + (uint64_t)(N-1) + Nchoose2 + 2*Nchoose6 + 2));
+  fprintf(file_pointer, "p cnf %d %lu\n", N*N, (2*(uint64_t)N + 3*Nchoose2 + 2*Nchoose6 + 1));
   
-	// first, we set useless vars to true:
-	// p(i,j), is true arbitrarily when j <= i + 1
+		// first, we set useless vars to true:
+	// p(i,j), is true arbitrarily when j = i or i + 1
 	for(int i = 0; i < N; i++) {
-		for(int j = 0; j <= i + 1; j++) {
-			if(j < N) fprintf(file_pointer, "%d 0\n", p(i,j));
+			fprintf(file_pointer, "%d 0\n", p(i,i));
+			fprintf(file_pointer, "%d 0\n", p(i,(i+1) % N));
+	}
+
+	// p(i,j) = p(j,i)
+	for(int i = 0; i < N; i++) {
+		for(int j = 0; j < i; j++) {
+			fprintf(file_pointer, "%d %d 0\n", p(i,j), -p(j,i));
+			fprintf(file_pointer, "%d %d 0\n", -p(i,j), p(j,i));
 	}}
+
 
 	// Now we add the clauses: want to loop through every group of 5
 	for(int a = 0; a < N - 5; a++) {
@@ -69,7 +77,13 @@ int main() {
 	// symmetry breaking:
 	// first, we require that p(0,2) is true, breaking reflection along the circle
 	fprintf(file_pointer, "%d 0\n", p(0,2));
-	fprintf(file_pointer, "%d 0\n", p(0,N-1));
+
+	// require 180 deg rotational self-symmetry
+	for(int i = 0; i < N; i++) {
+		for(int j = 0; j < i; j++) {
+			fprintf(file_pointer, "%d %d 0\n", p(i,j), -p((i+N/2)%N,(j+N/2)%N));
+			fprintf(file_pointer, "%d %d 0\n", -p(i,j), p((i+N/2)%N,(j+N/2)%N));
+	}}
 
   // Close the file
   fclose(file_pointer);
