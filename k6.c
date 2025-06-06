@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-int N = 26;
+int N = 25;
 
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
@@ -36,15 +36,13 @@ int main() {
     return 1; // Indicate an error
   }
 
+  int maxLen = 2;
+
   // Write data to the file
   uint64_t Nchoose2 = (N * (N-1)) / 2;
   uint64_t Nchoose6 = (N * (N-1))/2 * ((N-2) * (N-3))/2 * ((N-4) * (N-5)) / 180;
-//   printf("%d %d %d %d\n", N-2, N-3, N-4, N-5);
-//   printf("%ld\n",(uint64_t) (N * (N-1) * (N-2) * (N-3) * (N-4) * (N-5)));
-//   printf("NC2: %ld\n", Nchoose2);
-//   printf("NC6: %ld\n", Nchoose6);
-//   printf("fin: %lu\n", ((uint64_t)N + (uint64_t)(N-1) + Nchoose2 + 2*Nchoose6 + 2));
-  fprintf(file_pointer, "p cnf %d %lu\n", N*N, (2*(uint64_t)N + 3*Nchoose2 + 2*Nchoose6 + 1));
+
+  fprintf(file_pointer, "p cnf %d %lu\n", N*N, (2*(uint64_t)N + 2*Nchoose2 + 2*Nchoose6 +1 )); //+(maxLen-1)*2
   
 		// first, we set useless vars to true:
 	// p(i,j), is true arbitrarily when j = i or i + 1
@@ -78,12 +76,43 @@ int main() {
 	// first, we require that p(0,2) is true, breaking reflection along the circle
 	fprintf(file_pointer, "%d 0\n", p(0,2));
 
-	// require 180 deg rotational self-symmetry
-	for(int i = 0; i < N; i++) {
-		for(int j = 0; j < i; j++) {
-			fprintf(file_pointer, "%d %d 0\n", p(i,j), -p((i+N/2)%N,(j+N/2)%N));
-			fprintf(file_pointer, "%d %d 0\n", -p(i,j), p((i+N/2)%N,(j+N/2)%N));
-	}}
+	// // require 180 deg rotational self-symmetry
+	// for(int i = 0; i < N; i++) {
+	// 	for(int j = 0; j < i; j++) {
+	// 		fprintf(file_pointer, "%d %d 0\n", p(i,j), -p((i+N/2)%N,(j+N/2)%N));
+	// 		fprintf(file_pointer, "%d %d 0\n", -p(i,j), p((i+N/2)%N,(j+N/2)%N));
+	// }}
+
+	// // alternating len2 edges 
+	// for(int i = 0; i < N; i++) {
+	// 	if(i%2 ==0){
+	// 		fprintf(file_pointer, "%d 0\n", p(i,(i+2)%N));
+	// 	} else {
+	// 		fprintf(file_pointer, "%d 0\n", -p(i,(i+2)%N));
+	// 	}
+	// }
+
+	// //requires roughly balanced distribution of edge of length len
+	
+	// for(int ind = 2; ind <= maxLen; ind ++){
+
+	// 	int len = ind;
+
+	// 	fprintf(file_pointer, "k %d ", N/4 *2); 
+	// 	//!= N/2, e.g N=26, can't have >=13 true for both sides with symm pairs of edges
+	// 	//want n/2 edges (pairs of clauses) on each side
+	// 	for(int i = 0; i < N; i++) {
+	// 		fprintf(file_pointer, "%d ", p(i,(i+len)%N));
+	// 	}
+	// 	fprintf(file_pointer, "0\nk %d ", N/4 *2);
+	// 	for(int i = 0; i < N; i++) {
+	// 		fprintf(file_pointer, "%d ", -p(i,(i+len)%N));
+	// 	}
+	// 	fprintf(file_pointer, "0\n");
+	// }
+
+
+
 
   // Close the file
   fclose(file_pointer);
