@@ -55,9 +55,9 @@ int main(){
 
                         count = 0;
                     } else {
-                        if(num > 0 && pi((int)num) < pj((int)num)-1) {
+                        if(num < 0 && pi((int)-num) < pj((int)-num)-1) {
 
-                            printf("(%d,%d)\n", pi((int)num), pj((int)num));
+                            printf("%d/%d,", pi((int)-num), pj((int)-num));
                             count++;}
                     }
 

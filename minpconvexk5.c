@@ -7,7 +7,7 @@ int N = 13;
 unsigned long Nchoose5 = (N * (N-1) * (N-2) * (N-3) * (N-4)) / 120;
 
 // searching for at most/exactly this many pseudoconvex pentagons
-int k = 4;
+int k = 6;
 bool exact = true;
 
 int minBankers;

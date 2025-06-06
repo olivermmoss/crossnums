@@ -3,9 +3,11 @@
 #include <string.h>
 #include <assert.h>
 
-int N = 12;
+const int N = 12;
 
-bool rotstorage[24][12][12];
+const int solutions = 24;
+
+bool rotstorage[solutions][N][N];
 
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
@@ -33,7 +35,7 @@ int main(){
     fptr = fopen("k5.sol", "r");
 
     // Store the content of the file
-    char myString[10000];
+    char myString[1000000];
 		int count;
     int curIndex;
 		int curTable;
@@ -42,7 +44,7 @@ int main(){
     if(fptr != NULL) {
 
         // Read the content and print it
-        while(fgets(myString, 10000, fptr)) {
+        while(fgets(myString, 1000000, fptr)) {
             char * myPtr = strtok(myString, " ");
             if(myPtr!=NULL && strcmp(myPtr, "v")==0){
                 while(myPtr != NULL) {
@@ -79,11 +81,11 @@ int main(){
     fclose(fptr);
 
 		// search through the 24choose2 pairs of tables to see which match
-		for(int a = 0; a < 24; a++) {
+		for(int a = 0; a < solutions; a++) {
 			// actually, first we're gonna check that a has all the properties we expect
 			for(int i = 0; i < N; i++) {
 				// true diagonal
-				assert( rotstorage[a][i][i] );
+				if( !rotstorage[a][i][i] ) printf("broke on graph %d at position (%d,%d)\n", a, i, i);
 				// true diagonal+1
 				assert( rotstorage[a][i][(i+1) % N] );
 				for(int j = 0; j < i; j++) {
@@ -91,13 +93,13 @@ int main(){
 					assert( rotstorage[a][i][j] == rotstorage[a][j][i] );
 			}}
 			// okay, back to searching through pairs of graphs
-			for(int b = 0; b < 24; b++) {
+			for(int b = 0; b < solutions; b++) {
 				// don't want these though
-        if(a == b) continue;
+        //if(a == b) continue;
 				// bigMatch stores if THERE EXISTS an x with the properties we want
 				bool bigMatch = false;
-				bool posmatchbys[12] = {false};
-				bool negmatchbys[12] = {false};
+				bool posmatchbys[N] = {false};
+				bool negmatchbys[N] = {false};
 				for(int x = 0; x < N; x++) {
 					// match is "is it a rotation (check ALL i,j)"
 					bool match = true;
@@ -111,7 +113,7 @@ int main(){
 								flipMatch = false;
 					}}
 					if(match || flipMatch) {
-						bigMatch = true;
+						if(!(x == 0 && !flipMatch)) bigMatch = true;
 						if(match) posmatchbys[x] = true;
 						if(flipMatch) negmatchbys[x] = true;
 					}
@@ -119,10 +121,10 @@ int main(){
 				if(bigMatch) {
 					printf("graph %d and graph %d match by:", a, b);
 					// this would mean the graphs are the exact same - because this doesn't trigger it means any 0s we see indicate a reflection!
-					assert( !posmatchbys[0] );
+					//assert( !posmatchbys[0] );
 					for(int x = 0; x < N; x++) {
 						if(posmatchbys[x]) printf(" %d", x);
-						if(negmatchbys[x]) printf(" %d", -x);
+						if(negmatchbys[x]) printf(" %d", x-N);
 					}
 					printf("\n");
 				}

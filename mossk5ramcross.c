@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int N = 12;
+int N = 13;
 
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
@@ -24,7 +24,7 @@ int pj(int p) {
 //got this literally from the google AI output, just searched "C write to file skeleton code"
 int main() {
   FILE *file_pointer;
-  const char *filename = "k5ramcross.cnf"; // Specify the name of the file
+  const char *filename = "k5k13ram.cnf"; // Specify the name of the file
 
   // Open the file in write mode ("w"). If the file doesn't exist, it will be created.
   // If the file exists, it will be overwritten.
@@ -38,10 +38,11 @@ int main() {
   // Write data to the file
 	int Nchoose2 = (N * (N-1)) / 2;
 	int Nchoose5 = (N * (N-1) * (N-2) * (N-3) * (N-4)) / 120;
-  fprintf(file_pointer, "p cnf %d %d\n", N*N, (2*N + 2*Nchoose2 + 2*Nchoose5 + 2));
-  
+  fprintf(file_pointer, "p cnf %d %d\n", N*N, (2*N + 2*Nchoose2 + 2*Nchoose5 + 1));
+	// it's + 2*(Nchoose2 - N + 1) if we're doing symmetry  
+
 	// first, we set useless vars to true:
-	// p(i,j), is true arbitrarily when j = i or i + 1
+	// p(i,j), is true arbitrarily when j = i or i + 1 (note this takes care of (0, n-1) because of symmetry below
 	for(int i = 0; i < N; i++) {
 			fprintf(file_pointer, "%d 0\n", p(i,i));
 			fprintf(file_pointer, "%d 0\n", p(i,(i+1) % N));
@@ -69,6 +70,13 @@ int main() {
 	// symmetry breaking:
 	// first, we require that p(0,2) is true, breaking reflection along the circle
 	fprintf(file_pointer, "%d 0\n", p(0,2));
+
+	// we require 180 degree rotational symmetry, which shouldn't change the result in theory???
+	/*for(int j = 0; j < N; j++) {
+		for(int i = 0; i < j-1; i++) {
+			fprintf(file_pointer, "%d %d 0\n", p(i,j), -p((i + N/2) % N, (j + N/2) % N));
+			fprintf(file_pointer, "%d %d 0\n", -p(i,j), p((i + N/2) % N, (j + N/2) % N));
+	}}*/
 
   // Close the file
   fclose(file_pointer);
