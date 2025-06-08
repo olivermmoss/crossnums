@@ -3,12 +3,16 @@
 #include <string.h>
 #include <assert.h>
 
+ #define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 const int N = 12;
 
 const int solutions = 24;
 
 bool rotstorage[solutions][N][N];
+bool is26 [solutions];
 bool is27 [solutions];
+bool is28 [solutions];
 
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
@@ -56,12 +60,27 @@ int main(){
                         //printf("Error: Invalid characters in string.\n");
                         if(count != 0){
                             printf("------Edges inside graph %d: %d------\n", curTable, count);
-							curTable++;
 
 							//tracks which graphs have 27 edges inside and 27 edges outside
-							if(count == 27) {
-								is27[curTable] = true;
+							switch(count){
+								case 26:
+									is26[curTable] = true;
+									break;
+								case 27:
+									is27[curTable] = true;
+									break;
+								case 28:
+									is28[curTable] = true;
+									break;
+								default:
+									printf("SHOULD NOT TRIGGER");
+									assert(2==4);
+									break;
 							}
+
+							curTable++;
+
+							
                         }
 						
 
@@ -100,13 +119,22 @@ int main(){
 				assert( rotstorage[a][i][j] == rotstorage[a][j][i] );
 		}}
 
+		//checking that exactly one edge length is marked in arrays
+		assert(is26[a] || is27[a] || is28[a]);
+		assert(!is26[a] || !is27[a]);
+		assert(!is27[a] || !is28[a]);
+		assert(!is26[a] || !is28[a]);
+
 		//testing if for graphs with 27 edges inside and 27 edges outside, their inside
 		//and outside are equivalent with dihedral symmetry
+
+		
 		if(is27[a]){
 			bool bigSelf = false;
 			bool posSelf[N] = {false};
 			bool negSelf[N] = {false}; 
 
+			
 			for(int x = 0; x < N; x++) {
 				// match is "is it a rotation (check ALL i,j)"
 				bool rotSelf = true;
@@ -114,6 +142,9 @@ int main(){
 				bool flipSelf = true;
 				for(int i = 0; i < N; i++) {
 					for(int j = 0; j < N; j++) {
+						int max = MAX(i-j, j-i);
+						if(max <=1 || max ==N-1) continue;
+
 						if(rotstorage[a][i][j] == rotstorage[a][(i+x) % 12][(j+x) % 12])
 							rotSelf = false;
 						if(rotstorage[a][i][j] == rotstorage[a][(12-i+x) % 12][(12-j+x) % 12])
@@ -125,10 +156,10 @@ int main(){
 					if(flipSelf) negSelf[x] = true;
 				}
 			}
+		
 			if(bigSelf) {
-				printf("***graph %d's inside matches the outside by: ", a);
-				// this would mean the graphs are the exact same - because this doesn't trigger it means any 0s we see indicate a reflection!
-				//assert( !posmatchbys[0] );
+				printf("***graph %d's inside matches its outside by: ", a);
+			
 				for(int x = 0; x < N; x++) {
 					if(posSelf[x]) printf(" %d", x);
 					if(negSelf[x]) printf(" %d", x-N);
@@ -138,9 +169,54 @@ int main(){
 			
 			}
 
-
+		}
 		// okay, back to searching through pairs of graphs
 		for(int b = 0; b < solutions; b++) {
+
+				
+			if(is26[a] && is28[b]){
+				bool bigSelf = false;
+				bool posSelf[N] = {false};
+				bool negSelf[N] = {false}; 
+
+				
+				for(int x = 0; x < N; x++) {
+					// match is "is it a rotation (check ALL i,j)"
+					bool rotSelf = true;
+					// flipMatch is "is it a reflection (check ALL i,j)"
+					bool flipSelf = true;
+					for(int i = 0; i < N; i++) {
+						for(int j = 0; j < N; j++) {
+							int max = MAX(i-j, j-i);
+							if(max <=1 || max ==N-1) continue;
+
+							if(rotstorage[a][i][j] == rotstorage[b][(i+x) % 12][(j+x) % 12])
+								rotSelf = false;
+							if(rotstorage[a][i][j] == rotstorage[b][(12-i+x) % 12][(12-j+x) % 12])
+								flipSelf = false;
+					}}
+					if(rotSelf || flipSelf) {
+						if(!(x == 0 && !flipSelf)) bigSelf = true;
+						if(rotSelf) posSelf[x] = true;
+						if(flipSelf) negSelf[x] = true;
+					}
+				}
+			
+				if(bigSelf) {
+					printf("***graph %d's inside matches graph %d's outside by: ", a, b);
+				
+					for(int x = 0; x < N; x++) {
+						if(posSelf[x]) printf(" %d", x);
+						if(negSelf[x]) printf(" %d", x-N);
+					}
+					printf("\n");
+
+				
+				}
+
+			}
+
+
 			// don't want these though
 			//if(a == b) continue;
 			// bigMatch stores if THERE EXISTS an x with the properties we want
@@ -175,5 +251,6 @@ int main(){
 				}
 				printf("\n");
 			}
-	}}}
+	}}
+
 }
