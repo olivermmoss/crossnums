@@ -3,12 +3,12 @@
 #include "bankers.c"
 
 // number of vertices
-int N = 13;
+int N = 14;
 unsigned long Nchoose5 = (N * (N-1) * (N-2) * (N-3) * (N-4)) / 120;
 
 // searching for at most/exactly this many pseudoconvex pentagons
-int k = 6;
-bool exact = true;
+int k = 12;
+bool exact = false;
 
 int minBankers;
 
