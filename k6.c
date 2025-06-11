@@ -76,6 +76,7 @@ int main() {
 	// first, we require that p(0,2) is true, breaking reflection along the circle
 	fprintf(file_pointer, "%d 0\n", p(0,2));
 
+<<<<<<< HEAD
 	// // require 180 deg rotational self-symmetry
 	// for(int i = 0; i < N; i++) {
 	// 	for(int j = 0; j < i; j++) {
@@ -113,6 +114,14 @@ int main() {
 
 
 
+=======
+	// require 180 deg rotational self-symmetry
+	/*for(int i = 0; i < N; i++) {
+		for(int j = 0; j < i; j++) {
+			fprintf(file_pointer, "%d %d 0\n", p(i,j), -p((i+N/2)%N,(j+N/2)%N));
+			fprintf(file_pointer, "%d %d 0\n", -p(i,j), p((i+N/2)%N,(j+N/2)%N));
+	}}*/
+>>>>>>> 134846f (just changed N)
 
   // Close the file
   fclose(file_pointer);
