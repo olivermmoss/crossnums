@@ -1,17 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "bankers.c"
 
 int N = 25;
+
+unsigned long minBankers;
 
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
 // but encoding it this way is way easier lol - we just set useless vars to true
 int p(int i, int j) {
 	// plus one is to move it from [0, N) to [1, N]
-	return i * N + j + 1;
+	// don't think I need to do any casting as long as N < 31
+	unsigned long pos = ((1 << i) + (1 << j));
+	
+	return 1 + inverse(pos) - minBankers;
 }
 
+
+// NOTE: THESE ARE OUTDATED
 // get i given p
 int pi(int p) {
 	return (p - 1) / N;
@@ -26,6 +34,9 @@ int pj(int p) {
 int main() {
   FILE *file_pointer;
   const char *filename = "k6ram.cnf"; // Specify the name of the file
+	
+	length = N;
+	minBankers = inverse((1 << N-1) + (1 << N-2));
 
   // Open the file in write mode ("w"). If the file doesn't exist, it will be created.
   // If the file exists, it will be overwritten.
@@ -42,22 +53,12 @@ int main() {
   uint64_t Nchoose2 = (N * (N-1)) / 2;
   uint64_t Nchoose6 = (N * (N-1))/2 * ((N-2) * (N-3))/2 * ((N-4) * (N-5)) / 180;
 
-  fprintf(file_pointer, "p cnf %d %lu\n", N*N, (2*(uint64_t)N + 2*Nchoose2 + 2*Nchoose6 +1 )); //+(maxLen-1)*2
-  
-		// first, we set useless vars to true:
-	// p(i,j), is true arbitrarily when j = i or i + 1
+  fprintf(file_pointer, "p cnf %lu %lu\n", Nchoose2, 2*Nchoose6 + N); //+(maxLen-1)*2
+
+	// adjacent edges are true:
 	for(int i = 0; i < N; i++) {
-			fprintf(file_pointer, "%d 0\n", p(i,i));
-			fprintf(file_pointer, "%d 0\n", p(i,(i+1) % N));
+		fprintf(file_pointer, "%d 0\n", p(i, (i+1) % N));
 	}
-
-	// p(i,j) = p(j,i)
-	for(int i = 0; i < N; i++) {
-		for(int j = 0; j < i; j++) {
-			fprintf(file_pointer, "%d %d 0\n", p(i,j), -p(j,i));
-			fprintf(file_pointer, "%d %d 0\n", -p(i,j), p(j,i));
-	}}
-
 
 	// Now we add the clauses: want to loop through every group of 5
 	for(int a = 0; a < N - 5; a++) {
@@ -74,9 +75,9 @@ int main() {
 
 	// symmetry breaking:
 	// first, we require that p(0,2) is true, breaking reflection along the circle
-	fprintf(file_pointer, "%d 0\n", p(0,2));
+	// fprintf(file_pointer, "%d 0\n", p(0,2));
 
-<<<<<<< HEAD
+// <<<<<<< HEAD
 	// // require 180 deg rotational self-symmetry
 	// for(int i = 0; i < N; i++) {
 	// 	for(int j = 0; j < i; j++) {
@@ -114,14 +115,14 @@ int main() {
 
 
 
-=======
+// =======
 	// require 180 deg rotational self-symmetry
 	/*for(int i = 0; i < N; i++) {
 		for(int j = 0; j < i; j++) {
 			fprintf(file_pointer, "%d %d 0\n", p(i,j), -p((i+N/2)%N,(j+N/2)%N));
 			fprintf(file_pointer, "%d %d 0\n", -p(i,j), p((i+N/2)%N,(j+N/2)%N));
 	}}*/
->>>>>>> 134846f (just changed N)
+// >>>>>>> 134846f (just changed N)
 
   // Close the file
   fclose(file_pointer);
