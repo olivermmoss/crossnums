@@ -129,47 +129,47 @@ int main(){
 		//and outside are equivalent with dihedral symmetry
 
 		
-		if(is27[a]){
-			bool bigSelf = false;
-			bool posSelf[N] = {false};
-			bool negSelf[N] = {false}; 
+		// if(is27[a]){
+		// 	bool bigSelf = false;
+		// 	bool posSelf[N] = {false};
+		// 	bool negSelf[N] = {false}; 
 
 			
-			for(int x = 0; x < N; x++) {
-				// match is "is it a rotation (check ALL i,j)"
-				bool rotSelf = true;
-				// flipMatch is "is it a reflection (check ALL i,j)"
-				bool flipSelf = true;
-				for(int i = 0; i < N; i++) {
-					for(int j = 0; j < N; j++) {
-						int max = MAX(i-j, j-i);
-						if(max <=1 || max ==N-1) continue;
+		// 	for(int x = 0; x < N; x++) {
+		// 		// match is "is it a rotation (check ALL i,j)"
+		// 		bool rotSelf = true;
+		// 		// flipMatch is "is it a reflection (check ALL i,j)"
+		// 		bool flipSelf = true;
+		// 		for(int i = 0; i < N; i++) {
+		// 			for(int j = 0; j < N; j++) {
+		// 				int max = MAX(i-j, j-i);
+		// 				if(max <=1 || max ==N-1) continue;
 
-						if(rotstorage[a][i][j] == rotstorage[a][(i+x) % 12][(j+x) % 12])
-							rotSelf = false;
-						if(rotstorage[a][i][j] == rotstorage[a][(12-i+x) % 12][(12-j+x) % 12])
-							flipSelf = false;
-				}}
-				if(rotSelf || flipSelf) {
-					if(!(x == 0 && !flipSelf)) bigSelf = true;
-					if(rotSelf) posSelf[x] = true;
-					if(flipSelf) negSelf[x] = true;
-				}
-			}
+		// 				if(rotstorage[a][i][j] == rotstorage[a][(i+x) % 12][(j+x) % 12])
+		// 					rotSelf = false;
+		// 				if(rotstorage[a][i][j] == rotstorage[a][(12-i+x) % 12][(12-j+x) % 12])
+		// 					flipSelf = false;
+		// 		}}
+		// 		if(rotSelf || flipSelf) {
+		// 			if(!(x == 0 && !flipSelf)) bigSelf = true;
+		// 			if(rotSelf) posSelf[x] = true;
+		// 			if(flipSelf) negSelf[x] = true;
+		// 		}
+		// 	}
 		
-			if(bigSelf) {
-				printf("***graph %d's inside matches its outside by: ", a);
+		// 	if(bigSelf) {
+		// 		printf("*(I %d, O %d): ", a, a);
 			
-				for(int x = 0; x < N; x++) {
-					if(posSelf[x]) printf(" %d", x);
-					if(negSelf[x]) printf(" %d", x-N);
-				}
-				printf("\n");
+		// 		for(int x = 0; x < N; x++) {
+		// 			if(posSelf[x]) printf(" %d", x);
+		// 			if(negSelf[x]) printf(" %d", x-N);
+		// 		}
+		// 		printf("\n");
 
 			
-			}
+		// 	}
 
-		}
+		// }
 		// okay, back to searching through pairs of graphs
 		for(int b = 0; b < solutions; b++) {
 
@@ -203,7 +203,7 @@ int main(){
 				}
 			
 				if(bigSelf) {
-					printf("***graph %d's inside matches graph %d's outside by: ", a, b);
+					printf("(I %d, O %d): ", a, b);
 				
 					for(int x = 0; x < N; x++) {
 						if(posSelf[x]) printf(" %d", x);
@@ -214,6 +214,47 @@ int main(){
 				
 				}
 
+			}
+
+			if(is27[a] && is27[b]){
+				bool bigSelf = false;
+				bool posSelf[N] = {false};
+				bool negSelf[N] = {false}; 
+
+				
+				for(int x = 0; x < N; x++) {
+					// match is "is it a rotation (check ALL i,j)"
+					bool rotSelf = true;
+					// flipMatch is "is it a reflection (check ALL i,j)"
+					bool flipSelf = true;
+					for(int i = 0; i < N; i++) {
+						for(int j = 0; j < N; j++) {
+							int max = MAX(i-j, j-i);
+							if(max <=1 || max ==N-1) continue;
+
+							if(rotstorage[a][i][j] == rotstorage[b][(i+x) % 12][(j+x) % 12])
+								rotSelf = false;
+							if(rotstorage[a][i][j] == rotstorage[b][(12-i+x) % 12][(12-j+x) % 12])
+								flipSelf = false;
+					}}
+					if(rotSelf || flipSelf) {
+						if(!(x == 0 && !flipSelf)) bigSelf = true;
+						if(rotSelf) posSelf[x] = true;
+						if(flipSelf) negSelf[x] = true;
+					}
+				}
+			
+				if(bigSelf) {
+					printf("(I %d, O %d): ", a, b);
+				
+					for(int x = 0; x < N; x++) {
+						if(posSelf[x]) printf(" %d", x);
+						if(negSelf[x]) printf(" %d", x-N);
+					}
+					printf("\n");
+
+				
+				}
 			}
 
 
@@ -242,7 +283,7 @@ int main(){
 				}
 			}
 			if(bigMatch) {
-				printf("graph %d and graph %d match by:", a, b);
+				printf("(I %d, I %d):", a, b);
 				// this would mean the graphs are the exact same - because this doesn't trigger it means any 0s we see indicate a reflection!
 				//assert( !posmatchbys[0] );
 				for(int x = 0; x < N; x++) {
