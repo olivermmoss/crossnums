@@ -4,9 +4,9 @@
 #include <assert.h>
 #include "bankers.c"
 
-const int N = 25;
+const int N = 12;
 
-const int solutions = 80;
+const int solutions = 48;
 
 bool rotstorage[solutions][N][N];
 
@@ -14,44 +14,65 @@ int heatmap[N][N];
 
 unsigned long minBankers;
 
-// p(i,j) is whether the edge btwn i and j is inside or outside.
-// note that we only use this when i < j - 1, otherwise it's a useless var
-// but encoding it this way is way easier lol - we just set useless vars to true
-int p(int i, int j) {
-	// plus one is to move it from [0, N) to [1, N]
-	// don't think I need to do any casting as long as N < 31
-	unsigned long pos = ((1 << i) + (1 << j));
-	
-	return 1 + inverse(pos) - minBankers;
-}
+//#define BANKERS
 
-// get i given p
-int pi(int p) {
-	assert(p > 0);
+#ifdef BANKERS
 
-	unsigned long pos = compute(p - 1 + minBankers);
-	for(int i = 0; i < N; i++) {
-		if(pos & 1 == 1) return i;
-		pos = pos >> 1;
+	// p(i,j) is whether the edge btwn i and j is inside or outside.
+	// note that we only use this when i < j - 1, otherwise it's a useless var
+	// but encoding it this way is way easier lol - we just set useless vars to true
+	int p(int i, int j) {
+		// plus one is to move it from [0, N) to [1, N]
+		// don't think I need to do any casting as long as N < 31
+		unsigned long pos = ((1 << i) + (1 << j));
+		
+		return 1 + inverse(pos) - minBankers;
 	}
-	assert(false);
-	return -1;
-}
 
-// get j given p
-int pj(int p) {
-	assert(p > 0);
+	// get i given p
+	int pi(int p) {
+		assert(p > 0);
 
-	unsigned long pos = compute(p - 1 + minBankers);
-	bool foundOne = false;
-	for(int i = 0; i < N; i++) {
-		if(pos & 1 == 1 && foundOne) return i;
-		if(pos & 1 == 1 && !foundOne) foundOne = true;
-		pos = pos >> 1;
+		unsigned long pos = compute(p - 1 + minBankers);
+		for(int i = 0; i < N; i++) {
+			if(pos & 1 == 1) return i;
+			pos = pos >> 1;
+		}
+		assert(false);
+		return -1;
 	}
-	assert(false);
-	return -1;
-}
+
+	// get j given p
+	int pj(int p) {
+		assert(p > 0);
+
+		unsigned long pos = compute(p - 1 + minBankers);
+		bool foundOne = false;
+		for(int i = 0; i < N; i++) {
+			if(pos & 1 == 1 && foundOne) return i;
+			if(pos & 1 == 1 && !foundOne) foundOne = true;
+			pos = pos >> 1;
+		}
+		assert(false);
+		return -1;
+	}
+#else
+	int p(int i, int j) {
+		// plus one is to move it from [0, N) to [1, N]
+		return i * N + j + 1;
+	}
+
+	// get i given p
+	int pi(int p) {
+		return (p - 1) / N;
+	}
+
+	// get j given p
+	int pj(int p) {
+		return (p - 1) % N;
+	}
+#endif
+
 
 //list edges inside from sample sol
 int main(){
@@ -61,7 +82,7 @@ int main(){
 	minBankers = inverse((1 << N-1) + (1 << N-2));
 
     // Open a file in read mode
-    fptr = fopen("k6s.sol", "r");
+    fptr = fopen("k5.sol", "r");
 
     // Store the content of the file
     char myString[1000000];
@@ -95,9 +116,12 @@ int main(){
 
 						rotstorage[curTable][i][j] = (num > 0);
 						rotstorage[curTable][j][i] = (num > 0);
+
 						if(num > 0){
 							heatmap[i][j] ++;
+							#ifdef BANKERS
 							heatmap[j][i] ++;
+							#endif
 						}
                         if((num > 0) && i < j - 1) count++;
                     }
@@ -139,7 +163,6 @@ int main(){
 			// 	for(int j = 0; j < N; j++){
 			// 		if(rotstorage[a][i][j]){
 			// 			printf("1 ");
-			// 			heatmap[i][j] ++;
 			// 		} else {
 			// 			printf(". ");
 			// 		}
