@@ -4,9 +4,21 @@
 #include <assert.h>
 #include "bankers.c"
 
-const int N = 12;
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-const int solutions = 48;
+
+//FOR USER TO DECLARE*****************
+const int N = 25;
+
+const int solutions = 256;
+
+const char* fileName = "k6s.sol";
+
+#define BANKERS
+
+
+//ENDS HERE***************************
+
 
 bool rotstorage[solutions][N][N];
 
@@ -14,7 +26,6 @@ int heatmap[N][N];
 
 unsigned long minBankers;
 
-//#define BANKERS
 
 #ifdef BANKERS
 
@@ -82,7 +93,7 @@ int main(){
 	minBankers = inverse((1 << N-1) + (1 << N-2));
 
     // Open a file in read mode
-    fptr = fopen("k5.sol", "r");
+    fptr = fopen(fileName, "r");
 
     // Store the content of the file
     char myString[1000000];
@@ -173,7 +184,7 @@ int main(){
 
 			// okay, back to searching through pairs of graphs
 			for(int b = 0; b < solutions; b++) {
-				printf("Test (%d,%d)\n", a, b);
+				//printf("Test (%d,%d)\n", a, b);
 				// don't want these though
        		 	//if(a == b) continue;
 				// bigMatch stores if THERE EXISTS an x with the properties we want
@@ -209,7 +220,59 @@ int main(){
 					}
 					printf("\n");
 				}
+
+				bool bigSelf = false;
+				bool posSelf[N] = {false};
+				bool negSelf[N] = {false}; 
+
+				
+				for(int x = 0; x < N; x++) {
+					// match is "is it a rotation (check ALL i,j)"
+					bool rotSelf = true;
+					// flipMatch is "is it a reflection (check ALL i,j)"
+					bool flipSelf = true;
+					for(int i = 0; i < N; i++) {
+						for(int j = 0; j < N; j++) {
+							int max = MAX(i-j, j-i);
+							if(max <=1 || max ==N-1) continue;
+
+							if(rotstorage[a][i][j] == rotstorage[b][(i+x) % N][(j+x) % N])
+								rotSelf = false;
+							if(rotstorage[a][i][j] == rotstorage[b][(N-i+x) % N][(N-j+x) % N])
+								flipSelf = false;
+					}}
+					if(rotSelf || flipSelf) {
+						if(!(x == 0 && !flipSelf)) bigSelf = true;
+						if(rotSelf) posSelf[x] = true;
+						if(flipSelf) negSelf[x] = true;
+					}
+				}
+			
+				if(bigSelf) {
+					printf("(I %d, O %d): ", a, b);
+				
+					for(int x = 0; x < N; x++) {
+						if(posSelf[x]) printf(" %d", x);
+						if(negSelf[x]) printf(" %d", x-N);
+					}
+					printf("\n");
+
+				
+				}
+
 		}
+		}
+
+		FILE *file_pointer;
+		const char *filename = "heatmap.txt"; // Specify the name of the file
+
+		// Open the file in write mode ("w"). If the file doesn't exist, it will be created.
+		// If the file exists, it will be overwritten.
+		file_pointer = fopen(filename, "w");
+
+		if (file_pointer == NULL) {
+			printf("Error opening the file.\n");
+			return 1; // Indicate an error
 		}
 
 		printf("HEATMAP: \n");
@@ -217,12 +280,14 @@ int main(){
 			for(int i = 0; i < N; i++){
 				for(int j = 0; j < N; j++){
 					if(heatmap[i][j] == 0){
-						printf("  .");
+						printf("    .");
 					} else {
 						printf(" %d", heatmap[i][j]);
 					}
+					fprintf(file_pointer, " %d", heatmap[i][j]);
 				}
 				printf("\n");
+				fprintf(file_pointer, "\n");
 			}
-							
+		fclose(file_pointer);
 }
