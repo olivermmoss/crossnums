@@ -16,6 +16,10 @@ const int solutions = 24;
 
 bool rotstorage[solutions][N][N];
 
+bool findAll = true;
+// if findAll is true, this spits out all assignments with numPents PCPs
+int numPents = 7;
+
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
 // but encoding it this way is way easier lol - we just set useless vars to true
@@ -66,7 +70,7 @@ int main() {
                     if (*endptr != '\0') {
                         //printf("Error: Invalid characters in string.\n");
                         if(count != 0){
-                            printf("------Edges inside graph %d: %d------\n", curTable, count);
+                            //printf("------Edges inside graph %d: %d------\n", curTable, count);
 														curTable++;
                         }
 
@@ -97,6 +101,8 @@ int main() {
 	uint32_t minEdges;
 	int minGraph = 0;
 	bool assignment[(N+1)*(N+1)];
+	bool assignmentList[999][(N+1)*(N+1)];
+	int validCount = 0;
 
 	// graph is which of the allsat solutions we're looking at
 	for(int graph = 0; graph < solutions; graph++) {
@@ -141,20 +147,34 @@ int main() {
 	}}}}}
 
 	// set the minimum if stuff is satisfied
-	if(curPentagons < minPentagons ) {
+	if(curPentagons < minPentagons && !findAll) {
 		minPentagons = curPentagons;
 		minPos = pos;
 		minEdges = edges;
 		minGraph = graph;
 		for(int i = 0; i < (N+1)*(N+1); i++) {
 			assignment[i] = newGraph[i / (N+1)][i % (N+1)];
-	}}
+	}} else if(curPentagons == numPents && findAll) {
+			for(int i = 0; i < (N+1)*(N+1); i++) {
+				assignmentList[validCount][i] = newGraph[i / (N+1)][i % (N+1)];
+			}
+			validCount++;
+		}
 	}}}
 
-	printf("min pentagons: %d\nmin pos: %d\nmin edges: %d\nmin graph: %d\n", minPentagons, minPos, minEdges, minGraph);
-	for(int i = 0; i < (N+1)*(N+1); i++) {
-		printf("%d ", assignment[i] ? i+1 : -i-1);
+	if(!findAll) {
+		printf("min pentagons: %d\nmin pos: %d\nmin edges: %d\nmin graph: %d\n", minPentagons, minPos, minEdges, minGraph);
+		for(int i = 0; i < (N+1)*(N+1); i++) {
+			printf("%d ", assignment[i] ? i+1 : -i-1);
+		}
+	} else {
+		printf("total assignments with %d PCPs: %d\n", numPents, validCount);
+		for(int j = 0; j < validCount; j++) {
+			for(int i = 0; i < (N+1)*(N+1); i++) {
+				printf("%d ", assignmentList[j][i] ? i+1 : -i-1);
+			}
+			printf("\n");
+		}
 	}
-
  return 0; // Indicate successful execution
 }
