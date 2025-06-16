@@ -3,31 +3,25 @@
 #include "bankers.c"
 
 // number of vertices
-int N = 14;
+int N = 13;
 unsigned long Nchoose5 = (N * (N-1) * (N-2) * (N-3) * (N-4)) / 120;
+unsigned long Nchoose2 = (N * (N-1)) / 2;
 
 // searching for at most/exactly this many pseudoconvex pentagons
-int k = 12;
-bool exact = false;
+int k = 6;
+bool exact = true;
 
-int minBankers;
+int minBankers2;
+int minBankers5;
 
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
 // but encoding it this way is way easier lol - we just set useless vars to true
 int p(int i, int j) {
 	// plus one is to move it from [0, N) to [1, N]
-	return i * N + j + 1;
-}
-
-// get i given p
-int pi(int p) {
-	return (p - 1) / N;
-}
-
-// get j given p
-int pj(int p) {
-	return (p - 1) % N;
+	unsigned long pos = ((1 << i) + (1 << j));
+	
+	return 1 + inverse(pos) - minBankers2;
 }
 
 // q(a,b,c,d,e) is whether those vtxs are a pseudo-convex pentagon
@@ -35,13 +29,14 @@ int q(int a, int b, int c, int d, int e) {
 	// don't think I need to do any casting as long as N < 31
 	unsigned long pos = ((1 << a) + (1 << b) + (1 << c) + (1 << d) + (1 << e));
 	
-	return 1 + N*N + inverse(pos) - minBankers;
+	return 1 + N*N + inverse(pos) - minBankers5;
 }
 
 //got this literally from the google AI output, just searched "C write to file skeleton code"
 int main() {
 	length = N;
-	minBankers = inverse((1 << N-1) + (1 << N-2) + (1 << N-3) + (1 << N-4) + (1 << N-5));
+	minBankers5 = inverse((1 << N-1) + (1 << N-2) + (1 << N-3) + (1 << N-4) + (1 << N-5));
+	minBankers2 = inverse((1 << N-1) + (1 << N-2));
 
 	// testing choose (I don't like the outputs but they work???)
 	/*printf("%lu\n", Nchoose5);
@@ -63,25 +58,17 @@ int main() {
 
   // Write data to the file
 	int Nchoose2 = (N * (N-1)) / 2;
-	unsigned long Nclauses = (2*N + 2*Nchoose2 + 22*Nchoose5 + 1 + 1);
+	unsigned long Nclauses = (N + 22*Nchoose5 + 1 + 1);
 	if(exact) Nclauses++;
 
-  fprintf(file_pointer, "p knf %lu %lu\n", N*N + Nchoose5, Nclauses);
+  fprintf(file_pointer, "p knf %lu %lu\n", Nchoose2 + Nchoose5, Nclauses);
 	// it's + 2*(Nchoose2 - N + 1) if we're doing symmetry  
 
 	// first, we set useless vars to true:
 	// p(i,j), is true arbitrarily when j = i or i + 1 (note this takes care of (0, n-1) because of symmetry below
 	for(int i = 0; i < N; i++) {
-			fprintf(file_pointer, "%d 0\n", p(i,i));
 			fprintf(file_pointer, "%d 0\n", p(i,(i+1) % N));
 	}
-
-	// p(i,j) = p(j,i)
-	for(int i = 0; i < N; i++) {
-		for(int j = 0; j < i; j++) {
-			fprintf(file_pointer, "%d %d 0\n", p(i,j), -p(j,i));
-			fprintf(file_pointer, "%d %d 0\n", -p(i,j), p(j,i));
-	}}
 
 	// Now we add the clauses: want to loop through every group of 5
 	for(int a = 0; a < N - 4; a++) {
