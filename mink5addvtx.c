@@ -146,10 +146,15 @@ int main() {
 		minPos = pos;
 		minEdges = edges;
 		minGraph = graph;
-	}
+		for(int i = 0; i < (N+1)*(N+1); i++) {
+			assignment[i] = newGraph[i / (N+1)][i % (N+1)];
+	}}
 	}}}
 
 	printf("min pentagons: %d\nmin pos: %d\nmin edges: %d\nmin graph: %d\n", minPentagons, minPos, minEdges, minGraph);
+	for(int i = 0; i < (N+1)*(N+1); i++) {
+		printf("%d ", assignment[i] ? i+1 : -i-1);
+	}
 
  return 0; // Indicate successful execution
 }
