@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int N = 13;
+int N = 12;
 
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
@@ -38,7 +38,7 @@ int main() {
   // Write data to the file
 	int Nchoose2 = (N * (N-1)) / 2;
 	int Nchoose5 = (N * (N-1) * (N-2) * (N-3) * (N-4)) / 120;
-  fprintf(file_pointer, "p cnf %d %d\n", N*N, (2*N + 2*Nchoose2 + 2*Nchoose5 + 1));
+  fprintf(file_pointer, "p cnf %d %d\n", N*N, (2*N + 2*Nchoose2 + 2*Nchoose5));
 	// it's + 2*(Nchoose2 - N + 1) if we're doing symmetry  
 
 	// first, we set useless vars to true:
@@ -69,7 +69,7 @@ int main() {
 
 	// symmetry breaking:
 	// first, we require that p(0,2) is true, breaking reflection along the circle
-	fprintf(file_pointer, "%d 0\n", p(0,2));
+	// fprintf(file_pointer, "%d 0\n", p(0,2));
 
 	// we require 180 degree rotational symmetry, which shouldn't change the result in theory???
 	/*for(int j = 0; j < N; j++) {
