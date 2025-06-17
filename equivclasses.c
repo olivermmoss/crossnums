@@ -8,7 +8,7 @@
 
 const int N = 12;
 
-const int solutions = 48;
+const int solutions = 3;
 
 bool rotstorage[solutions][N][N];
 bool is26 [solutions];
@@ -254,7 +254,7 @@ int main(){
 	} else {
 		for(int i = 0; i < solutions; i++) {
 			if(unique[i]) {
-				printf("solution %d:\n", i);
+				printf("solution %d:\nv ", i);
 				for(int p = 1; p <= N*N; p++) {
 					printf("%d ", rotstorage[i][pi(p)][pj(p)] ? p : -p);
 				}

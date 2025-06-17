@@ -12,11 +12,11 @@ const int N = 12;
 unsigned long Nchoose5 = (N * (N-1) * (N-2) * (N-3) * (N-4)) / 120;
 unsigned long Nchoose2 = (N * (N-1)) / 2;
 
-const int solutions = 24;
+const int solutions = 3;
 
 bool rotstorage[solutions][N][N];
 
-bool findAll = true;
+bool findAll = false;
 // if findAll is true, this spits out all assignments with numPents PCPs
 int numPents = 7;
 
@@ -48,7 +48,7 @@ int main() {
 	FILE *fptr;
 
     // Open a file in read mode
-    fptr = fopen("k5.sol", "r");
+    fptr = fopen("k5k12classes.sol", "r");
 
     // Store the content of the file
     char myString[1000000];
@@ -163,13 +163,14 @@ int main() {
 	}}}
 
 	if(!findAll) {
-		printf("min pentagons: %d\nmin pos: %d\nmin edges: %d\nmin graph: %d\n", minPentagons, minPos, minEdges, minGraph);
+		printf("min pentagons: %d\nmin pos: %d\nmin edges: %d\nmin graph: %d\nv ", minPentagons, minPos, minEdges, minGraph);
 		for(int i = 0; i < (N+1)*(N+1); i++) {
 			printf("%d ", assignment[i] ? i+1 : -i-1);
 		}
 	} else {
 		printf("total assignments with %d PCPs: %d\n", numPents, validCount);
 		for(int j = 0; j < validCount; j++) {
+			printf("v ");
 			for(int i = 0; i < (N+1)*(N+1); i++) {
 				printf("%d ", assignmentList[j][i] ? i+1 : -i-1);
 			}
