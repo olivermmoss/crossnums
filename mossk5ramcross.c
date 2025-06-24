@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int N = 12;
+int N = 10;
 
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var

@@ -29,7 +29,7 @@ int q(int a, int b, int c, int d, int e) {
 	// don't think I need to do any casting as long as N < 31
 	unsigned long pos = ((1 << a) + (1 << b) + (1 << c) + (1 << d) + (1 << e));
 	
-	return 1 + N*N + inverse(pos) - minBankers5;
+	return 1 + Nchoose2 + inverse(pos) - minBankers5;
 }
 
 //got this literally from the google AI output, just searched "C write to file skeleton code"

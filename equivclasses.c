@@ -2,48 +2,99 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "bankers.c"
 
  #define MAX(a, b) ((a) > (b) ? (a) : (b))
  #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-const int N = 12;
+//FOR USER TO DECLARE*****************
 
-const int solutions = 3;
+const int N = 10;
+
+const int solutions = 172070;
+
+bool printClasses = false;
+
+const char* fileName = "k10nok5.sol";
+
+//#define BANKERS
+
+
+//ENDS HERE***************************
 
 bool rotstorage[solutions][N][N];
-bool is26 [solutions];
-bool is27 [solutions];
-bool is28 [solutions];
+int insideCount[solutions];
 bool unique[solutions];
 
-bool printClasses = true;
+unsigned long minBankers;
 
-// NOTE: THIS VERSION IS FOR NO BANKERS!!!!!!!
+#ifdef BANKERS
 
-// p(i,j) is whether the edge btwn i and j is inside or outside.
-// note that we only use this when i < j - 1, otherwise it's a useless var
-// but encoding it this way is way easier lol - we just set useless vars to true
-int p(int i, int j) {
-        // plus one is to move it from [0, N) to [1, N]
-        return i * N + j + 1;
-}
+	// p(i,j) is whether the edge btwn i and j is inside or outside.
+	// note that we only use this when i < j - 1, otherwise it's a useless var
+	// but encoding it this way is way easier lol - we just set useless vars to true
+	int p(int i, int j) {
+		// plus one is to move it from [0, N) to [1, N]
+		// don't think I need to do any casting as long as N < 31
+		unsigned long pos = ((1 << i) + (1 << j));
+		
+		return 1 + inverse(pos) - minBankers;
+	}
 
-// get i given p
-int pi(int p) {
-        return (p - 1) / N;
-}
+	// get i given p
+	int pi(int p) {
+		assert(p > 0);
 
-// get j given p
-int pj(int p) {
-        return (p - 1) % N;
-}
+		unsigned long pos = compute(p - 1 + minBankers);
+		for(int i = 0; i < N; i++) {
+			if(pos & 1 == 1) return i;
+			pos = pos >> 1;
+		}
+		assert(false);
+		return -1;
+	}
+	// get j given p
+	int pj(int p) {
+		assert(p > 0);
+
+		unsigned long pos = compute(p - 1 + minBankers);
+		bool foundOne = false;
+		for(int i = 0; i < N; i++) {
+			if(pos & 1 == 1 && foundOne) return i;
+			if(pos & 1 == 1 && !foundOne) foundOne = true;
+			pos = pos >> 1;
+		}
+		assert(false);
+		return -1;
+	}
+#else
+	int p(int i, int j) {
+		// plus one is to move it from [0, N) to [1, N]
+		return i * N + j + 1;
+	}
+
+	// get i given p
+	int pi(int p) {
+		return (p - 1) / N;
+	}
+
+	// get j given p
+	int pj(int p) {
+		return (p - 1) % N;
+	}
+#endif
 
 //list edges inside from sample sol
 int main(){
     FILE *fptr;
 
+	length = N;
+	minBankers = inverse((1 << N-1) + (1 << N-2));
+
+	int Nchoose2 = N * (N-1) / 2;
+
     // Open a file in read mode
-    fptr = fopen("k5.sol", "r");
+    fptr = fopen(fileName, "r");
 
     // Store the content of the file
     char myString[1000000];
@@ -68,21 +119,7 @@ int main(){
                             if(!printClasses) printf("------Edges inside graph %d: %d------\n", curTable, count);
 
 							//tracks which graphs have 27 edges inside and 27 edges outside
-							switch(count){
-								case 26:
-									is26[curTable] = true;
-									break;
-								case 27:
-									is27[curTable] = true;
-									break;
-								case 28:
-									is28[curTable] = true;
-									break;
-								default:
-									printf("SHOULD NOT TRIGGER");
-									assert(2==4);
-									break;
-							}
+							insideCount[curTable] = count;
 
 							curTable++;
 
@@ -94,6 +131,7 @@ int main(){
                     } else {
 						//in the current table, store if the edge is inside
 						rotstorage[curTable][pi(abs(num))][pj(abs(num))] = (num > 0);
+						rotstorage[curTable][pj(abs(num))][pi(abs(num))] = (num > 0);
                         if((num > 0) && pi(num) < pj(num) - 1 && !(pi(num)==0 && pj(num)==N-1)) count++;
                     }
 
@@ -114,6 +152,8 @@ int main(){
 
 	for(int i = 0; i < solutions; i++) unique[i] = true;
 
+	int maxInsideCount = Nchoose2 - N;
+
 	// search through the 24choose2 pairs of tables to see which match
 	for(int a = 0; a < solutions; a++) {
 	// but only pairs where both aren't in any classes found yet!
@@ -122,7 +162,7 @@ int main(){
 		for(int b = 0; b < solutions; b++) {
 			if(!unique[b]) continue;
 				
-			if(is26[a] && is28[b]){
+			if(insideCount[a] == maxInsideCount - insideCount[b]){
 				bool bigSelf = false;
 				bool posSelf[N] = {false};
 				bool negSelf[N] = {false}; 
@@ -165,50 +205,6 @@ int main(){
 				}
 
 			}
-
-			if(is27[a] && is27[b]){
-				bool bigSelf = false;
-				bool posSelf[N] = {false};
-				bool negSelf[N] = {false}; 
-
-				
-				for(int x = 0; x < N; x++) {
-					// match is "is it a rotation (check ALL i,j)"
-					bool rotSelf = true;
-					// flipMatch is "is it a reflection (check ALL i,j)"
-					bool flipSelf = true;
-					for(int i = 0; i < N; i++) {
-						for(int j = 0; j < N; j++) {
-							int max = MAX(i-j, j-i);
-							if(max <=1 || max ==N-1) continue;
-
-							if(rotstorage[a][i][j] == rotstorage[b][(i+x) % 12][(j+x) % 12])
-								rotSelf = false;
-							if(rotstorage[a][i][j] == rotstorage[b][(12-i+x) % 12][(12-j+x) % 12])
-								flipSelf = false;
-					}}
-					if(rotSelf || flipSelf) {
-						if(!(x == 0 && !flipSelf)) bigSelf = true;
-						if(rotSelf) posSelf[x] = true;
-						if(flipSelf) negSelf[x] = true;
-					}
-				}
-			
-				if(bigSelf) {
-					if(a != b) unique[MAX(a,b)] = false;
-					if(printClasses) continue;
-				
-					printf("(I %d, O %d): ", a, b);
-					for(int x = 0; x < N; x++) {
-						if(posSelf[x]) printf(" %d", x);
-						if(negSelf[x]) printf(" %d", x-N);
-					}
-					printf("\n");
-
-				
-				}
-			}
-
 
 			// bigMatch stores if THERE EXISTS an x with the properties we want
 			bool bigMatch = false;
