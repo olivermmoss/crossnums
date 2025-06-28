@@ -7,7 +7,7 @@
 
 const int N = 12;
 
-const int solutions = 24;
+const int solutions = 48;
 
 bool rotstorage[solutions][N][N];
 bool is26 [solutions];
