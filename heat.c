@@ -10,11 +10,11 @@
 //FOR USER TO DECLARE*****************
 const int N = 25;
 
-const int solutions = 256;
+const int solutions = 256+72;
 
-const char* fileName = "flipk6s.sol"; //file to read sols from
+const char* fileName = "k6all.sol"; //file to read sols from
 
-const char *filename = "hmflip256.txt"; //file for heatmap
+const char *filename = "hmk6all.txt"; //file for heatmap
 
 #define BANKERS
 
@@ -191,90 +191,6 @@ int main(){
 					assert( rotstorage[a][i][j] == rotstorage[a][j][i] );
 			}}
 
-
-
-			
-
-
-			// okay, back to searching through pairs of graphs
-			for(int b = 0; b < solutions; b++) {
-				//printf("Test (%d,%d)\n", a, b);
-				// don't want these though
-       		 	//if(a == b) continue;
-				// bigMatch stores if THERE EXISTS an x with the properties we want
-				bool bigMatch = false;
-				bool posmatchbys[N] = {false};
-				bool negmatchbys[N] = {false};
-				for(int x = 0; x < N; x++) {
-					// match is "is it a rotation (check ALL i,j)"
-					bool match = true;
-					// flipMatch is "is it a reflection (check ALL i,j)"
-					bool flipMatch = true;
-					for(int i = 0; i < N; i++) {
-						for(int j = 0; j < N; j++) {
-
-							if(rotstorage[a][i][j] != rotstorage[b][(i+x) % N][(j+x) % N])
-								match = false;
-							if(rotstorage[a][i][j] != rotstorage[b][(N-i+x) % N][(N-j+x) % N])
-								flipMatch = false;
-					}}
-					if(match || flipMatch) {
-						if(!(x == 0 && !flipMatch)) bigMatch = true;
-						if(match) posmatchbys[x] = true;
-						if(flipMatch) negmatchbys[x] = true;
-					}
-				}
-				if(bigMatch) {
-					printf("graph %d and graph %d match by:", a, b);
-					// this would mean the graphs are the exact same - because this doesn't trigger it means any 0s we see indicate a reflection!
-					//assert( !posmatchbys[0] );
-					for(int x = 0; x < N; x++) {
-						if(posmatchbys[x]) printf(" %d", x);
-						if(negmatchbys[x]) printf(" %d", x-N);
-					}
-					printf("\n");
-				}
-
-				bool bigSelf = false;
-				bool posSelf[N] = {false};
-				bool negSelf[N] = {false}; 
-
-				
-				for(int x = 0; x < N; x++) {
-					// match is "is it a rotation (check ALL i,j)"
-					bool rotSelf = true;
-					// flipMatch is "is it a reflection (check ALL i,j)"
-					bool flipSelf = true;
-					for(int i = 0; i < N; i++) {
-						for(int j = 0; j < N; j++) {
-							int max = MAX(i-j, j-i);
-							if(max <=1 || max ==N-1) continue;
-
-							if(rotstorage[a][i][j] == rotstorage[b][(i+x) % N][(j+x) % N])
-								rotSelf = false;
-							if(rotstorage[a][i][j] == rotstorage[b][(N-i+x) % N][(N-j+x) % N])
-								flipSelf = false;
-					}}
-					if(rotSelf || flipSelf) {
-						if(!(x == 0 && !flipSelf)) bigSelf = true;
-						if(rotSelf) posSelf[x] = true;
-						if(flipSelf) negSelf[x] = true;
-					}
-				}
-			
-				if(bigSelf) {
-					printf("(I %d, O %d): ", a, b);
-				
-					for(int x = 0; x < N; x++) {
-						if(posSelf[x]) printf(" %d", x);
-						if(negSelf[x]) printf(" %d", x-N);
-					}
-					printf("\n");
-
-				
-				}
-
-		}
 		}
 
 		FILE *file_pointer;

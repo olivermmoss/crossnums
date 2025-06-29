@@ -10,21 +10,15 @@
 //FOR USER TO DECLARE*****************
 const int N = 25;
 
-const int solutions = 256;
 
-const char* fileName = "k6s.sol"; //file to read sols from
+const char* fileName = "k6sno2.sol"; //file to read sols from
 
-const char *newfile = "flipk6s.sol"; //file for flipped output
+const char *newfile = "flipk6sno2.sol"; //file for flipped output
 
 #define BANKERS
 
 
 //ENDS HERE***************************
-
-
-bool rotstorage[solutions][N][N];
-
-int heatmap[N][N];
 
 unsigned long minBankers;
 

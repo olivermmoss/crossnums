@@ -7,6 +7,8 @@ int N = 25;
 
 unsigned long minBankers;
 
+const char *filename = "k6ram.cnf"; // Specify the name of the file
+
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
 // but encoding it this way is way easier lol - we just set useless vars to true
@@ -33,7 +35,7 @@ int pj(int p) {
 //got this literally from the google AI output, just searched "C write to file skeleton code"
 int main() {
   FILE *file_pointer;
-  const char *filename = "k6ram.cnf"; // Specify the name of the file
+  
 	
 	length = N;
 	minBankers = inverse((1 << N-1) + (1 << N-2));
@@ -53,7 +55,7 @@ int main() {
   uint64_t Nchoose2 = (N * (N-1)) / 2;
   uint64_t Nchoose6 = (N * (N-1))/2 * ((N-2) * (N-3))/2 * ((N-4) * (N-5)) / 180;
 
-  fprintf(file_pointer, "p cnf %lu %lu\n", Nchoose2, 2*Nchoose6 + N); //+(maxLen-1)*2
+  fprintf(file_pointer, "p cnf %lu %lu\n", Nchoose2, 2*Nchoose6 + N +2); //+(maxLen-1)*2
 
 	// adjacent edges are true:
 	for(int i = 0; i < N; i++) {
@@ -73,9 +75,9 @@ int main() {
 						fprintf(file_pointer, "%d %d %d %d %d %d %d %d %d 0\n", -p(a,c), -p(a,d), -p(a,e), -p(b,d), -p(b,e), -p(b,f), -p(c,e), -p(c,f), -p(d,f));
     }}}}}}
 
-	// symmetry breaking:
-	// first, we require that p(0,2) is true, breaking reflection along the circle
-	// fprintf(file_pointer, "%d 0\n", p(0,2));
+	// PARTITION
+	fprintf(file_pointer, "%d 0\n", p(0,2));
+	fprintf(file_pointer, "%d 0\n", p(5,24));
 
 // <<<<<<< HEAD
 	// // require 180 deg rotational self-symmetry
