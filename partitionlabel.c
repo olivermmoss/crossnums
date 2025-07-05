@@ -162,9 +162,9 @@ int main(){
 
    for(int i = 0; i < ind_edge_count; i++){
         if((specific_partition & 1<<i) == 0){
-            fprintf(write_ptr, "%s +\n", edges[i]);
+            fprintf(write_ptr, "+ %s\n", edges[i]);
         } else {
-            fprintf(write_ptr, "%s -\n", edges[i]);
+            fprintf(write_ptr, "- %s\n", edges[i]);
         }
     }
 

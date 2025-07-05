@@ -2,12 +2,40 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "bankers.c"
+#include <assert.h>
+#include <math.h>
+#include <string.h>
+
+#define POW(a, b) ((int)pow((double)a, (double)b))
+
+
+
+
+
+//FOR USER TO DECLARE*****************
 
 int N = 25;
 
-unsigned long minBankers;
-
 const char *filename = "k6ram.cnf"; // Specify the name of the file
+
+
+
+#define UNITS
+
+const char *unitfile = "ind256.txt";
+int ind_edge_count = 8;
+
+int specific_partition;  // value now based on command line
+
+
+//ENDS HERE***************************
+
+
+
+
+
+
+unsigned long minBankers;
 
 // p(i,j) is whether the edge btwn i and j is inside or outside.
 // note that we only use this when i < j - 1, otherwise it's a useless var
@@ -33,8 +61,15 @@ int pj(int p) {
 }
 
 //got this literally from the google AI output, just searched "C write to file skeleton code"
-int main() {
-  FILE *file_pointer;
+int main(int argc, char **argv) {
+
+	if(argc == 2){
+		specific_partition = (int) atoi(argv[1]);
+	} else {
+		fprintf(stderr, "IN UNITS MODE: EXPECTS PARTITION #");
+	}
+
+  	FILE *file_pointer;
   
 	
 	length = N;
@@ -55,7 +90,14 @@ int main() {
   uint64_t Nchoose2 = (N * (N-1)) / 2;
   uint64_t Nchoose6 = (N * (N-1))/2 * ((N-2) * (N-3))/2 * ((N-4) * (N-5)) / 180;
 
-  fprintf(file_pointer, "p cnf %lu %lu\n", Nchoose2, 2*Nchoose6 + N +2); //+(maxLen-1)*2
+
+  uint64_t clause_num = 2*Nchoose6 + N;
+  #ifdef UNITS
+  	clause_num += (1+ind_edge_count);
+  #endif
+
+
+  fprintf(file_pointer, "p cnf %lu %lu\n", Nchoose2, clause_num); //+(maxLen-1)*2
 
 	// adjacent edges are true:
 	for(int i = 0; i < N; i++) {
@@ -76,8 +118,77 @@ int main() {
     }}}}}}
 
 	// PARTITION
-	fprintf(file_pointer, "%d 0\n", p(0,2));
-	fprintf(file_pointer, "%d 0\n", p(5,24));
+	
+	#ifdef UNITS
+		fprintf(file_pointer, "%d 0\n", p(0,2));
+
+
+		FILE *read_units;
+		// Open a file in read mode
+            read_units = fopen(unitfile, "r");
+
+            // If the file exist
+            if(read_units != NULL) {
+
+				char myString[1000000];
+				int count = 0;
+
+                // Read the content and print it
+                while(fgets(myString, 1000000, read_units)) {
+					
+                    char * myPtr = strtok(myString, " ");
+					bool i_turn = true;
+					int i_here;
+					int j_here;
+                    
+
+					while(myPtr != NULL) {
+						char *endptr;
+						char num = (char) strtol(myPtr, &endptr, 10);
+
+						if (*endptr != '\0') {
+							assert(0<=num && num <N);
+							
+							if(i_turn) { 
+								i_here = num;
+							} else {
+								j_here = num;
+								if((specific_partition & 1<<count) == 0) {
+									
+									fprintf(file_pointer, "%d 0\n", p(i_here,j_here));
+
+								} else {
+
+									fprintf(file_pointer, "%d 0\n", -p(i_here,j_here));
+
+								} 
+							}
+						} 
+
+						i_turn = false;
+						myPtr = strtok(NULL, " ");
+
+                	}
+					count++;
+                }
+                
+
+            // If the file does not exist
+            } else {
+            printf("Not able to open the file.");
+            }
+        
+
+            // Close the file
+            fclose(read_units);
+			
+	#endif
+
+
+
+
+
+
 
 // <<<<<<< HEAD
 	// // require 180 deg rotational self-symmetry
@@ -117,13 +228,13 @@ int main() {
 
 
 
-// =======
-	// require 180 deg rotational self-symmetry
-	/*for(int i = 0; i < N; i++) {
-		for(int j = 0; j < i; j++) {
-			fprintf(file_pointer, "%d %d 0\n", p(i,j), -p((i+N/2)%N,(j+N/2)%N));
-			fprintf(file_pointer, "%d %d 0\n", -p(i,j), p((i+N/2)%N,(j+N/2)%N));
-	}}*/
+	// =======
+		// require 180 deg rotational self-symmetry
+		/*for(int i = 0; i < N; i++) {
+			for(int j = 0; j < i; j++) {
+				fprintf(file_pointer, "%d %d 0\n", p(i,j), -p((i+N/2)%N,(j+N/2)%N));
+				fprintf(file_pointer, "%d %d 0\n", -p(i,j), p((i+N/2)%N,(j+N/2)%N));
+		}}*/
 // >>>>>>> 134846f (just changed N)
 
   // Close the file
