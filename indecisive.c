@@ -128,7 +128,7 @@ int main(){
 						//to read up documentation on file reader so this is a patch fix
 						if (curCol == N-1 && 0 < num && num < solutions){
 							if(curRow < curCol)
-								fprintf(ind_edges_ptr, "(%d, %d)\n", curRow, curCol);	
+								fprintf(ind_edges_ptr, "%d %d\n", curRow, curCol);	
 						}
 						curCol = 0;
                     
@@ -136,7 +136,7 @@ int main(){
 						
 						if(0 < num && num < solutions){
 							if(curRow < curCol)
-							fprintf(ind_edges_ptr, "(%d, %d)\n", curRow, curCol);
+							fprintf(ind_edges_ptr, "%d %d\n", curRow, curCol);
 						}
 						curCol++;
                     }
