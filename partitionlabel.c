@@ -16,7 +16,7 @@
 //FOR USER TO DECLARE*****************
 
 //range from 0 to POW(2, ind_edge_count)-1
-int specific_partition = 3;
+int specific_partition; //val assigned in command line
 
 const int N = 25;
 
@@ -92,7 +92,15 @@ unsigned long minBankers;
 
 
 //list edges inside from sample sol
-int main(){
+int main(int argc, char **argv){
+
+    if(argc == 2){
+		specific_partition = (int) atoi(argv[1]);
+	} else {
+		fprintf(stderr, "IN UNITS MODE: EXPECTS PARTITION #\n");
+	}
+
+
     FILE *read_ptr;
 	
     //GETS INDECISIVE EDGES AND COMPILES THEM INTO AN ARRAY
@@ -123,7 +131,9 @@ int main(){
             fclose(read_ptr);
         //
         const int ind_edge_count = row;
-        char edges[ind_edge_count][20];
+        int edges[ind_edge_count][2];
+
+        assert(0 <= specific_partition && specific_partition < POW(2, ind_edge_count));
         
 
         // second read to get edges and store in an array
@@ -136,9 +146,32 @@ int main(){
 
                 // Read the content and print it
                 while(fgets(myString, 1000000, read_ptr)) {
-                    char * myPtr = strtok(myString, "\n");
-                    strcpy(edges[row], myPtr);
+                    char * myPtr = strtok(myString, " ");
+                    bool i_turn = true;
+
+                    while(myPtr != NULL) {
+						char *endptr;
+						int num = (int) strtol(myPtr, &endptr, 10);
+                        
+
+                        assert(0<=num && num <N);
+                        
+                        if(i_turn) { 
+                            edges[row][0] = num;
+                        } else {
+                            edges[row][1] = num;
+                        }
+
+						i_turn = false;
+						myPtr = strtok(NULL, " ");
+
+                	}
+
+
+
+
                     row++;
+
                 }
                 //}
 
@@ -162,9 +195,9 @@ int main(){
 
    for(int i = 0; i < ind_edge_count; i++){
         if((specific_partition & 1<<i) == 0){
-            fprintf(write_ptr, "+ %s\n", edges[i]);
+            fprintf(write_ptr, "(%d, %d)\n", edges[i][0], edges[i][1]);
         } else {
-            fprintf(write_ptr, "- %s\n", edges[i]);
+            fprintf(write_ptr, "-(%d, %d)\n", edges[i][0], edges[i][1]);
         }
     }
 
