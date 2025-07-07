@@ -65,6 +65,7 @@ int main(int argc, char **argv) {
 
 	if(argc == 2){
 		specific_partition = (int) atoi(argv[1]);
+		assert(0<= specific_partition && specific_partition < POW(2,ind_edge_count));
 	} else {
 		fprintf(stderr, "IN UNITS MODE: EXPECTS PARTITION #");
 	}
