@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "bankers.c"
 
-int N = 13;
+int N = 6;
 
 int main() {
 

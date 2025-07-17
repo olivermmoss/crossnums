@@ -1,0 +1,135 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "bankers.c"
+
+// number of vertices
+int N = 12;
+unsigned long Nchoose5 = (N * (N-1) * (N-2) * (N-3) * (N-4)) / 120;
+unsigned long Nchoose4 = (N * (N-1) * (N-2) * (N-3)) / 24;
+unsigned long Nchoose3 = (N * (N-1) * (N-2)) / 6;
+int k = 5;
+
+// searching for at most/exactly this many pseudoconvex pentagons
+// int k = 31;
+// bool exact = false;
+
+int minBankers3;
+int minBankers4;
+int minBankers5;
+
+// s(i,j,k) is whether the edge btwn i and k and goes above j
+int s(int i, int j, int k) {
+	// plus one is to move it from [0, N) to [1, N]
+	unsigned long pos = ((1 << i) + (1 << j) + (1 << k));
+	
+	return 1 + inverse(pos) - minBankers3;
+}
+
+// H(a,b,c,d) is iff those vtxs don't form a crossing
+int H(int a, int b, int c, int d) {
+	// don't think I need to do any casting as long as N < 31
+	unsigned long pos = ((1 << a) + (1 << b) + (1 << c) + (1 << d));
+	
+	return 1 + Nchoose3 + inverse(pos) - minBankers4;
+}
+
+// P(a,b,c,d,e) is iff those vtxs are a PCP
+int P(int a, int b, int c, int d, int e) {
+	// don't think I need to do any casting as long as N < 31
+	unsigned long pos = ((1 << a) + (1 << b) + (1 << c) + (1 << d) + (1 << e));
+	
+	return 1 + Nchoose3 + Nchoose4 + inverse(pos) - minBankers5;
+}
+
+
+int main() {
+	length = N;
+	minBankers5 = inverse((1 << N-1) + (1 << N-2) + (1 << N-3) + (1 << N-4) + (1 << N-5));
+	minBankers4 = inverse((1 << N-1) + (1 << N-2) + (1 << N-3) + (1 << N-4));
+	minBankers3 = inverse((1 << N-1) + (1 << N-2) + (1 << N-3));
+
+  FILE *file_pointer;
+  const char *filename = "xmonominPCP.knf"; // Specify the name of the file
+
+  // Open the file in write mode ("w"). If the file doesn't exist, it will be created.
+  // If the file exists, it will be overwritten.
+  file_pointer = fopen(filename, "w");
+
+  if (file_pointer == NULL) {
+    printf("Error opening the file.\n");
+    return 1; // Indicate an error
+  }
+
+  // Write data to the file
+	unsigned long Nclauses = (14 * Nchoose4 + 8 * Nchoose5);
+
+  fprintf(file_pointer, "p knf %lu %lu\n", Nchoose3 + Nchoose4 + Nchoose5, Nclauses); 
+
+	// forbid the BAD GROUPS of 4
+	for(int a = 0; a < N - 3; a++) {
+		for(int b = a+1; b < N - 2; b++) {
+			for(int c = b+1; c < N - 1; c++) {
+				for(int d = c+1; d < N; d++) {
+						// preserve semisimplicity
+						fprintf(file_pointer, "%d %d %d %d 0\n", -s(a,b,c), s(a,b,d), -s(a,c,d), s(b,c,d));
+						fprintf(file_pointer, "%d %d %d %d 0\n", -s(a,b,c), s(a,b,d), -s(a,c,d), -s(b,c,d));
+						fprintf(file_pointer, "%d %d %d %d 0\n", -s(a,b,c), -s(a,b,d), s(a,c,d), -s(b,c,d));
+						fprintf(file_pointer, "%d %d %d %d 0\n", s(a,b,c), -s(a,b,d), s(a,c,d), -s(b,c,d));
+						fprintf(file_pointer, "%d %d %d %d 0\n", s(a,b,c), -s(a,b,d), s(a,c,d), s(b,c,d));
+						fprintf(file_pointer, "%d %d %d %d 0\n", s(a,b,c), s(a,b,d), -s(a,c,d), s(b,c,d));
+
+						// set the iff for H:
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", -s(a,b,c), -s(a,b,d), -s(a,c,d), s(b,c,d), H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", -s(a,b,c), s(a,b,d), s(a,c,d), s(b,c,d), H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", s(a,b,c), -s(a,b,d), -s(a,c,d), -s(b,c,d), H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", s(a,b,c), s(a,b,d), s(a,c,d), -s(b,c,d), H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d 0\n", -s(a,b,c), -s(b,c,d), -H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d 0\n", s(a,b,c), s(b,c,d), -H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d 0\n", -s(a,b,d), s(a,c,d), -H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d 0\n", s(a,b,d), -s(a,c,d), -H(a,b,c,d));
+	}}}}
+
+	// forbid the BAD GROUPS of 5
+	for(int a = 0; a < N - 4; a++) {
+		for(int b = a+1; b < N - 3; b++) {
+			for(int c = b+1; c < N - 2; c++) {
+				for(int d = c+1; d < N - 1; d++) {
+					for(int e = d+1; e < N; e++) {
+						// preserve simplicity
+						fprintf(file_pointer, "%d %d %d %d 0\n", s(a,b,e), s(a,d,e), s(b,c,d), -s(a,c,e));
+						fprintf(file_pointer, "%d %d %d %d 0\n", -s(a,b,e), -s(a,d,e), -s(b,c,d), s(a,c,e));
+						// set value of P:
+						fprintf(file_pointer, "%d %d %d %d %d %d 0\n", -P(a,b,c,d,e), H(a,b,c,d), H(a,b,c,e), H(a,b,d,e), H(a,c,d,e), H(b,c,d,e));
+						fprintf(file_pointer, "%d %d 0\n", P(a,b,c,d,e), -H(a,b,c,d));
+						fprintf(file_pointer, "%d %d 0\n", P(a,b,c,d,e), -H(a,b,c,e));
+						fprintf(file_pointer, "%d %d 0\n", P(a,b,c,d,e), -H(a,b,d,e));
+						fprintf(file_pointer, "%d %d 0\n", P(a,b,c,d,e), -H(a,c,d,e));
+						fprintf(file_pointer, "%d %d 0\n", P(a,b,c,d,e), -H(b,c,d,e));
+	}}}}}
+
+	// finally, we add the knf clauses:
+
+	fprintf(file_pointer, "k %lu ", Nchoose5 - k);
+	for(int a = 0; a < N - 4; a++) {
+		for(int b = a+1; b < N - 3; b++) {
+			for(int c = b+1; c < N - 2; c++) {
+				for(int d = c+1; d < N - 1; d++) {
+					for(int e = d+1; e < N; e++) {
+						fprintf(file_pointer, "%d ", -P(a,b,c,d,e));
+	}}}}}
+	fprintf(file_pointer, "0\n");
+	
+	// we require 180 degree rotational symmetry, which shouldn't change the result in theory???
+	/*for(int j = 0; j < N; j++) {
+		for(int i = 0; i < j-1; i++) {
+			fprintf(file_pointer, "%d %d 0\n", p(i,j), -p((i + N/2) % N, (j + N/2) % N));
+			fprintf(file_pointer, "%d %d 0\n", -p(i,j), p((i + N/2) % N, (j + N/2) % N));
+	}}*/
+
+  // Close the file
+  fclose(file_pointer);
+
+  printf("Data written to %s successfully.\n", filename);
+
+  return 0; // Indicate successful execution
+}

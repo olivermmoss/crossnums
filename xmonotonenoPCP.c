@@ -3,21 +3,21 @@
 #include "bankers.c"
 
 // number of vertices
-int N = 13;
+int N = 12;
 unsigned long Nchoose5 = (N * (N-1) * (N-2) * (N-3) * (N-4)) / 120;
 unsigned long Nchoose4 = (N * (N-1) * (N-2) * (N-3)) / 24;
 unsigned long Nchoose3 = (N * (N-1) * (N-2)) / 6;
+int k = 5;
 
 // searching for at most/exactly this many pseudoconvex pentagons
 // int k = 31;
 // bool exact = false;
 
 int minBankers3;
+int minBankers4;
 int minBankers5;
 
-// p(i,j) is whether the edge btwn i and j is inside or outside.
-// note that we only use this when i < j - 1, otherwise it's a useless var
-// but encoding it this way is way easier lol - we just set useless vars to true
+// s(i,j,k) is whether the edge btwn i and k and goes above j
 int s(int i, int j, int k) {
 	// plus one is to move it from [0, N) to [1, N]
 	unsigned long pos = ((1 << i) + (1 << j) + (1 << k));
@@ -25,17 +25,18 @@ int s(int i, int j, int k) {
 	return 1 + inverse(pos) - minBankers3;
 }
 
-// q(a,b,c,d,e) is whether those vtxs are a pseudo-convex pentagon
-/*int q(int a, int b, int c, int d, int e) {
+// H(a,b,c,d) is iff those vtxs don't form a crossing
+int H(int a, int b, int c, int d) {
 	// don't think I need to do any casting as long as N < 31
-	unsigned long pos = ((1 << a) + (1 << b) + (1 << c) + (1 << d) + (1 << e));
+	unsigned long pos = ((1 << a) + (1 << b) + (1 << c) + (1 << d));
 	
-	return 1 + Nchoose2 + inverse(pos) - minBankers5;
-}*/
+	return 1 + Nchoose3 + inverse(pos) - minBankers4;
+}
 
 int main() {
 	length = N;
 	minBankers5 = inverse((1 << N-1) + (1 << N-2) + (1 << N-3) + (1 << N-4) + (1 << N-5));
+	minBankers4 = inverse((1 << N-1) + (1 << N-2) + (1 << N-3) + (1 << N-4));
 	minBankers3 = inverse((1 << N-1) + (1 << N-2) + (1 << N-3));
 
   FILE *file_pointer;
@@ -51,10 +52,9 @@ int main() {
   }
 
   // Write data to the file
-	unsigned long Nclauses = (6 * Nchoose4 + 4 * Nchoose5);
+	unsigned long Nclauses = (14 * Nchoose4 + 3 * Nchoose5);
 
-  fprintf(file_pointer, "p cnf %lu %lu\n", Nchoose3, Nclauses);
-	// it's + 2*(Nchoose2 - N + 1) if we're doing symmetry  
+  fprintf(file_pointer, "p cnf %lu %lu\n", Nchoose3 + Nchoose4, Nclauses); 
 
 	// forbid the BAD GROUPS of 4
 	for(int a = 0; a < N - 3; a++) {
@@ -68,6 +68,16 @@ int main() {
 						fprintf(file_pointer, "%d %d %d %d 0\n", s(a,b,c), -s(a,b,d), s(a,c,d), -s(b,c,d));
 						fprintf(file_pointer, "%d %d %d %d 0\n", s(a,b,c), -s(a,b,d), s(a,c,d), s(b,c,d));
 						fprintf(file_pointer, "%d %d %d %d 0\n", s(a,b,c), s(a,b,d), -s(a,c,d), s(b,c,d));
+
+						// set the iff for H:
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", -s(a,b,c), -s(a,b,d), -s(a,c,d), s(b,c,d), H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", -s(a,b,c), s(a,b,d), s(a,c,d), s(b,c,d), H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", s(a,b,c), -s(a,b,d), -s(a,c,d), -s(b,c,d), H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", s(a,b,c), s(a,b,d), s(a,c,d), -s(b,c,d), H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d 0\n", -s(a,b,c), -s(b,c,d), -H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d 0\n", s(a,b,c), s(b,c,d), -H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d 0\n", -s(a,b,d), s(a,c,d), -H(a,b,c,d));
+						fprintf(file_pointer, "%d %d %d 0\n", s(a,b,d), -s(a,c,d), -H(a,b,c,d));
 	}}}}
 
 	// forbid the BAD GROUPS of 5
@@ -80,8 +90,7 @@ int main() {
 						fprintf(file_pointer, "%d %d %d %d 0\n", s(a,b,e), s(a,d,e), s(b,c,d), -s(a,c,e));
 						fprintf(file_pointer, "%d %d %d %d 0\n", -s(a,b,e), -s(a,d,e), -s(b,c,d), s(a,c,e));
 						// no PCPs:
-						fprintf(file_pointer, "%d %d %d %d %d %d %d 0\n", s(a,b,c), s(a,b,d), s(a,c,d), s(b,c,d), s(b,c,e), s(b,d,e), s(c,d,e));
-						fprintf(file_pointer, "%d %d %d %d %d %d %d 0\n", -s(a,b,c), -s(a,b,d), -s(a,c,d), -s(b,c,d), -s(b,c,e), -s(b,d,e), -s(c,d,e));
+						fprintf(file_pointer, "%d %d %d %d %d 0\n", H(a,b,c,d), H(a,b,c,e), H(a,b,d,e), H(a,c,d,e), H(b,c,d,e));
 	}}}}}
 
 	// finally, we add the knf clauses:
