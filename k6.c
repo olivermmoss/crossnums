@@ -49,16 +49,6 @@ int p(int i, int j) {
 }
 
 
-// NOTE: THESE ARE OUTDATED
-// get i given p
-int pi(int p) {
-	return (p - 1) / N;
-}
-
-// get j given p
-int pj(int p) {
-	return (p - 1) % N;
-}
 
 //got this literally from the google AI output, just searched "C write to file skeleton code"
 int main(int argc, char **argv) {
@@ -67,7 +57,9 @@ int main(int argc, char **argv) {
 		specific_partition = (int) atoi(argv[1]);
 		assert(0<= specific_partition && specific_partition < POW(2,ind_edge_count));
 	} else {
+		#ifdef UNITS
 		fprintf(stderr, "IN UNITS MODE: EXPECTS PARTITION #");
+		#endif
 	}
 
   	FILE *file_pointer;
