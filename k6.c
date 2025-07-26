@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
   #endif
 
 
-  fprintf(file_pointer, "p cnf %lu %lu\n", Nchoose2, clause_num); //+(maxLen-1)*2
+  fprintf(file_pointer, "p cnf %lu %lu\n", Nchoose2, clause_num + 2*Nchoose2); //+(maxLen-1)*2
 
 	// adjacent edges are true:
 	for(int i = 0; i < N; i++) {
@@ -138,8 +138,8 @@ int main(int argc, char **argv) {
 					while(myPtr != NULL) {
 						char *endptr;
 						char num = (char) strtol(myPtr, &endptr, 10);
-
-						if (*endptr != '\0') {
+						
+						
 							assert(0<=num && num <N);
 							
 							if(i_turn) { 
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
 
 								} 
 							}
-						} 
+						
 
 						i_turn = false;
 						myPtr = strtok(NULL, " ");
@@ -177,7 +177,13 @@ int main(int argc, char **argv) {
 			
 	#endif
 
-
+	// require ?? deg rotational self-symmetry
+	// int x = specific_partition;
+	// for(int i = 0; i < N; i++) {
+	// 	for(int j = 0; j < i; j++) {
+	// 		fprintf(file_pointer, "%d %d 0\n", p(i,j), -p((i+x)%N,(j+x)%N));
+	// 		fprintf(file_pointer, "%d %d 0\n", -p(i,j), p((i+x)%N,(j+x)%N));
+	// }}
 
 
 
